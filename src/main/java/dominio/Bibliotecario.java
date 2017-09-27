@@ -10,7 +10,7 @@ import dominio.repositorio.RepositorioPrestamo;
 public class Bibliotecario {
 
 	public static final String EL_LIBRO_NO_SE_ENCUENTRA_DISPONIBLE = "El libro no se encuentra disponible";
-	public static final String EL_LIBRO_SOLO_USO_BIBLIOTECA = "los libros palíndromos solo se pueden utilizar en la biblioteca ";
+	public static final String EL_LIBRO_SOLO_USO_BIBLIOTECA = "los libros palï¿½ndromos solo se pueden utilizar en la biblioteca ";
 	public static final int MAXIMO_ISBN = 30;
 
 	private RepositorioLibro repositorioLibro;
@@ -23,8 +23,10 @@ public class Bibliotecario {
 	}
 
 	public void prestar(String isbn, String nombreUsuario) {
+		Date fechaEntrega = null;
+		Date fechaInicio = new Date();
 		if (!isbn.isEmpty() && !nombreUsuario.isEmpty()) {
-			Date fechaEntrega = null;
+
 			if (esPrestado(isbn)) {
 				throw new PrestamoException(EL_LIBRO_NO_SE_ENCUENTRA_DISPONIBLE);
 			}
@@ -33,12 +35,12 @@ public class Bibliotecario {
 				throw new PrestamoException(EL_LIBRO_SOLO_USO_BIBLIOTECA);
 			}
 			if (sumarNumerosISBN(isbn) > MAXIMO_ISBN) {
-				System.out.println("mayor isbn");
+				fechaEntrega = calcularFecha(fechaInicio);
 			}
-			Libro libro = repositorioLibro.obtenerPorIsbn(isbn);
-			Prestamo prestamo = new Prestamo(new Date(), libro, fechaEntrega, nombreUsuario);
-			repositorioPrestamo.agregar(prestamo);
 
+			Libro libro = repositorioLibro.obtenerPorIsbn(isbn);
+			Prestamo prestamo = new Prestamo(fechaInicio, libro, fechaEntrega, nombreUsuario);
+			repositorioPrestamo.agregar(prestamo);
 		}
 
 	}
@@ -64,29 +66,22 @@ public class Bibliotecario {
 		return suma;
 	}
 
-	public static Date calculateDate(Date startDate) {
+	public Date calcularFecha(Date fechaInicio) {
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(startDate);
-		// calendar.set(2017, Calendar.SEPTEMBER, 26);
-		Date finalDate = null;
-		int days = 15;
-		while (finalDate == null) {
+		calendar.setTime(fechaInicio);
+		int dias = 15;
+		while (dias > 0) {
 			if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-				int sundays = days / 7;
-				days = days + sundays;
-				calendar.add(Calendar.DAY_OF_MONTH, days);
-				finalDate = calendar.getTime();
+				int domingos = (dias + 1) / 7;
+				dias += domingos;
+				calendar.add(Calendar.DAY_OF_MONTH, dias);
+				dias = 0;
 			} else {
-				days--;
+				dias--;
 				calendar.add(Calendar.DAY_OF_MONTH, 1);
 			}
-
 		}
-		if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-			calendar.add(Calendar.DAY_OF_MONTH, 1);
-		}
-		finalDate = calendar.getTime();
-		return finalDate;
+		return calendar.getTime();
 	}
 
 }

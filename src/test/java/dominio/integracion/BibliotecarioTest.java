@@ -18,6 +18,7 @@ import testdatabuilder.LibroTestDataBuilder;
 public class BibliotecarioTest {
 
 	private static final String CRONICA_DE_UNA_MUERTA_ANUNCIADA = "Cronica de una muerta anunciada";
+	private static final String NOMBRE_USUARIO = "Carolina Isaza";
 
 	private SistemaDePersistencia sistemaPersistencia;
 
@@ -40,7 +41,7 @@ public class BibliotecarioTest {
 		sistemaPersistencia.terminar();
 	}
 
-	//@Test
+	// @Test
 	public void prestarLibroTest() {
 
 		// arrange
@@ -49,9 +50,8 @@ public class BibliotecarioTest {
 		System.out.println(repositorioLibros.obtenerPorIsbn(libro.getIsbn()).getTitulo());
 		Bibliotecario blibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
 
-		String nombreUsuario = "Carolina Isaza";
 		// act
-		blibliotecario.prestar(libro.getIsbn(), nombreUsuario);
+		blibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
 
 		// assert
 		Assert.assertTrue(blibliotecario.esPrestado(libro.getIsbn()));
@@ -59,11 +59,8 @@ public class BibliotecarioTest {
 
 	}
 
-	//@Test
+	// @Test
 	public void prestarLibroNoDisponibleTest() {
-
-		String nombreUsuario = "Carolina Isaza";
-
 		// arrange
 		Libro libro = new LibroTestDataBuilder().conTitulo(CRONICA_DE_UNA_MUERTA_ANUNCIADA).build();
 
@@ -72,10 +69,10 @@ public class BibliotecarioTest {
 		Bibliotecario blibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
 
 		// act
-		blibliotecario.prestar(libro.getIsbn(), nombreUsuario);
+		blibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
 		try {
 
-			blibliotecario.prestar(libro.getIsbn(), nombreUsuario);
+			blibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
 			fail();
 		} catch (PrestamoException e) {
 			// assert
@@ -86,7 +83,6 @@ public class BibliotecarioTest {
 	@Test
 	public void prestarLibroNombreUsuarioTest() {
 		// arrange
-		String nombreUsuario = "Carolina Isaza";
 		LibroTestDataBuilder libroTestDataBuilder = new LibroTestDataBuilder();
 
 		Libro libro = libroTestDataBuilder.conIsbn("1242").build();
@@ -96,9 +92,66 @@ public class BibliotecarioTest {
 		Bibliotecario blibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
 
 		// act
-		blibliotecario.prestar(libro.getIsbn(), nombreUsuario);
-		
-		Assert.assertEquals(nombreUsuario, repositorioPrestamo.obtener(libro.getIsbn()).getNombreUsuario());
+		blibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
+
+		Assert.assertEquals(NOMBRE_USUARIO, repositorioPrestamo.obtener(libro.getIsbn()).getNombreUsuario());
+
+	}
+
+	@Test
+	public void prestarLibroPalindromoTest() {
+		Libro libro = new LibroTestDataBuilder().conIsbn("1221").build();
+
+		repositorioLibros.agregar(libro);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
+		try {
+
+			bibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
+			fail();
+
+		} catch (PrestamoException e) {
+			// assert
+			Assert.assertEquals(Bibliotecario.EL_LIBRO_SOLO_USO_BIBLIOTECA, e.getMessage());
+		}
+	}
+
+	@Test
+	public void prestarLibroIsbnMayorTreinta() {
+		Libro libro = new LibroTestDataBuilder().conIsbn("T878B85Z").build();
+
+		repositorioLibros.agregar(libro);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
+
+		bibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
+		Assert.assertNotNull(repositorioPrestamo.obtener(libro.getIsbn()).getFechaEntregaMaxima());
+
+	}
+
+	@Test
+	public void prestarLibroIsbnMenorTreinta() {
+		Libro libro = new LibroTestDataBuilder().conIsbn("A874B6Q").build();
+
+		repositorioLibros.agregar(libro);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
+
+		bibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
+		Assert.assertNull(repositorioPrestamo.obtener(libro.getIsbn()).getFechaEntregaMaxima());
+
+	}
+
+	@Test
+	public void prestarLibroIsbnIgualTreinta() {
+		Libro libro = new LibroTestDataBuilder().conIsbn("A8B8Q8L6").build();
+
+		repositorioLibros.agregar(libro);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
+
+		bibliotecario.prestar(libro.getIsbn(), NOMBRE_USUARIO);
+		Assert.assertNull(repositorioPrestamo.obtener(libro.getIsbn()).getFechaEntregaMaxima());
 
 	}
 }

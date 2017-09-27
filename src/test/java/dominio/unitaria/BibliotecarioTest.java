@@ -1,17 +1,19 @@
 package dominio.unitaria;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import dominio.Bibliotecario;
 import dominio.Libro;
-import dominio.excepcion.PrestamoException;
 import dominio.repositorio.RepositorioLibro;
 import dominio.repositorio.RepositorioPrestamo;
 import testdatabuilder.LibroTestDataBuilder;
@@ -63,42 +65,91 @@ public class BibliotecarioTest {
 	}
 
 	@Test
-	public void prestarLibroPalindromoTest() {
-		String nombreUsuario = "Carolina Isaza";
-		Libro libro = new LibroTestDataBuilder().conIsbn("1221").build();
+	public void libroISBNPalindromo() {
+		LibroTestDataBuilder libroTestDataBuilder = new LibroTestDataBuilder();
+
+		Libro libro = libroTestDataBuilder.conIsbn("1221").build();
 
 		RepositorioPrestamo repositorioPrestamo = mock(RepositorioPrestamo.class);
 		RepositorioLibro repositorioLibro = mock(RepositorioLibro.class);
 
-		when(repositorioPrestamo.obtenerLibroPrestadoPorIsbn(libro.getIsbn())).thenReturn(null);
-
 		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibro, repositorioPrestamo);
-		try {
 
-			bibliotecario.prestar(libro.getIsbn(), nombreUsuario);
-			fail();
+		boolean esPalindromo = bibliotecario.esPalindromo(libro.getIsbn());
 
-		} catch (PrestamoException e) {
-			// assert
-			Assert.assertEquals(Bibliotecario.EL_LIBRO_SOLO_USO_BIBLIOTECA, e.getMessage());
-		}
+		assertTrue(esPalindromo);
+
 	}
 
 	@Test
-	public void contarNumerosISBN(){
-		
-		Libro libro = new LibroTestDataBuilder().conIsbn("1221AS5678GTSY525").build();
+	public void libroISBNNoPalindromo() {
+		LibroTestDataBuilder libroTestDataBuilder = new LibroTestDataBuilder();
+
+		Libro libro = libroTestDataBuilder.build();
+
 		RepositorioPrestamo repositorioPrestamo = mock(RepositorioPrestamo.class);
 		RepositorioLibro repositorioLibro = mock(RepositorioLibro.class);
 
-		when(repositorioPrestamo.obtenerLibroPrestadoPorIsbn(libro.getIsbn())).thenReturn(null);
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibro, repositorioPrestamo);
+
+		boolean esPalindromo = bibliotecario.esPalindromo(libro.getIsbn());
+
+		assertFalse(esPalindromo);
+
+	}
+
+	@Test
+	public void contarNumerosISBN() {
+
+		Libro libro = new LibroTestDataBuilder().conIsbn("T878B85Z").build();
+		RepositorioPrestamo repositorioPrestamo = mock(RepositorioPrestamo.class);
+		RepositorioLibro repositorioLibro = mock(RepositorioLibro.class);
 
 		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibro, repositorioPrestamo);
 		int isbnNumero = bibliotecario.sumarNumerosISBN(libro.getIsbn());
-		Assert.assertEquals(44,isbnNumero);
+		Assert.assertEquals(36, isbnNumero);
 	}
-	
-	
 
+	@Test
+	public void contarNumerosISBNSinNumeros() {
+
+		Libro libro = new LibroTestDataBuilder().conIsbn("AFBNDN").build();
+		RepositorioPrestamo repositorioPrestamo = mock(RepositorioPrestamo.class);
+		RepositorioLibro repositorioLibro = mock(RepositorioLibro.class);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibro, repositorioPrestamo);
+		int isbnNumero = bibliotecario.sumarNumerosISBN(libro.getIsbn());
+		Assert.assertEquals(0, isbnNumero);
+	}
+
+	@Test
+	public void fechaMaximaEntrega() {
+
+		RepositorioPrestamo repositorioPrestamo = mock(RepositorioPrestamo.class);
+		RepositorioLibro repositorioLibro = mock(RepositorioLibro.class);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibro, repositorioPrestamo);
+		Calendar fechaInicio = Calendar.getInstance();
+		fechaInicio.set(2017, Calendar.MAY, 24);
+		Date fechaEntrega = bibliotecario.calcularFecha(fechaInicio.getTime());
+		Calendar fechaEntregaEsperada = Calendar.getInstance();
+		fechaEntregaEsperada.set(2017, Calendar.JUNE, 9);
+		assertEquals(fechaEntregaEsperada.getTime().toString(), fechaEntrega.toString());
+	}
+
+	@Test
+	public void fechaMaximaEntregaDomingo() {
+
+		RepositorioPrestamo repositorioPrestamo = mock(RepositorioPrestamo.class);
+		RepositorioLibro repositorioLibro = mock(RepositorioLibro.class);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibro, repositorioPrestamo);
+		Calendar fechaInicio = Calendar.getInstance();
+		fechaInicio.set(2017, Calendar.MAY, 26);
+		Date fechaEntrega = bibliotecario.calcularFecha(fechaInicio.getTime());
+		Calendar fechaEntregaEsperada = Calendar.getInstance();
+		fechaEntregaEsperada.set(2017, Calendar.JUNE, 12);
+		assertEquals(fechaEntregaEsperada.getTime().toString(), fechaEntrega.toString());
+	}
 
 }
