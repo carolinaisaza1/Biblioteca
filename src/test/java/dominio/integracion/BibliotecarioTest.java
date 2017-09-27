@@ -47,7 +47,6 @@ public class BibliotecarioTest {
 		// arrange
 		Libro libro = new LibroTestDataBuilder().conTitulo(CRONICA_DE_UNA_MUERTA_ANUNCIADA).build();
 		repositorioLibros.agregar(libro);
-		System.out.println(repositorioLibros.obtenerPorIsbn(libro.getIsbn()).getTitulo());
 		Bibliotecario blibliotecario = new Bibliotecario(repositorioLibros, repositorioPrestamo);
 
 		// act

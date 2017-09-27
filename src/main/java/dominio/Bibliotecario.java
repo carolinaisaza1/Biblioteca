@@ -22,6 +22,12 @@ public class Bibliotecario {
 
 	}
 
+	/**
+	 * Metodo que presta un libro dado un usuario y su isbn
+	 * 
+	 * @param isbn
+	 * @param nombreUsuario
+	 */
 	public void prestar(String isbn, String nombreUsuario) {
 		Date fechaEntrega = null;
 		Date fechaInicio = new Date();
@@ -45,16 +51,32 @@ public class Bibliotecario {
 
 	}
 
+	/**
+	 * Metodo que verifica que el libro no se encuentra prestado en el momento
+	 * 
+	 * @param isbn
+	 * @return
+	 */
 	public boolean esPrestado(String isbn) {
 		Libro libroPrestado = repositorioPrestamo.obtenerLibroPrestadoPorIsbn(isbn);
 		return libroPrestado != null;
 	}
 
+	/**
+	 * Metodo que verifica si el codigo isbn es palindromo
+	 * @param isbn
+	 * @return
+	 */
 	public boolean esPalindromo(String isbn) {
 		StringBuilder isbnBuilder = new StringBuilder(isbn);
 		return isbnBuilder.toString().equals(isbnBuilder.reverse().toString());
 	}
 
+	/**
+	 * metodo para sumar los numeros que se encuentren en el isbn
+	 * @param isbn
+	 * @return
+	 */
 	public int sumarNumerosISBN(String isbn) {
 		int suma = 0;
 		char[] caracteres = isbn.toCharArray();
@@ -66,6 +88,11 @@ public class Bibliotecario {
 		return suma;
 	}
 
+	/**
+	 * Calcula la fecha de entrega del libro sin contar domingos
+	 * @param fechaInicio
+	 * @return
+	 */
 	public Date calcularFecha(Date fechaInicio) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(fechaInicio);
