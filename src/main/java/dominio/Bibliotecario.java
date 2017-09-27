@@ -10,6 +10,7 @@ public class Bibliotecario {
 
 	public static final String EL_LIBRO_NO_SE_ENCUENTRA_DISPONIBLE = "El libro no se encuentra disponible";
 	public static final String EL_LIBRO_SOLO_USO_BIBLIOTECA = "los libros palíndromos solo se pueden utilizar en la biblioteca ";
+	public static final int MAXIMO_ISBN = 30;
 	
 	private RepositorioLibro repositorioLibro;
 	private RepositorioPrestamo repositorioPrestamo;
@@ -22,7 +23,7 @@ public class Bibliotecario {
 
 	public void prestar(String isbn, String nombreUsuario) {
 		if (!isbn.isEmpty() && !nombreUsuario.isEmpty()) {
-
+			Date fechaEntrega = null;
 			if (esPrestado(isbn)) {
 				throw new PrestamoException(EL_LIBRO_NO_SE_ENCUENTRA_DISPONIBLE);
 			}
@@ -30,10 +31,11 @@ public class Bibliotecario {
 			if (esPalindromo(isbn)) {
 				throw new PrestamoException(EL_LIBRO_SOLO_USO_BIBLIOTECA);
 			}
-			
+			if(sumarNumerosISBN(isbn)> MAXIMO_ISBN ){
+				System.out.println("mayor isbn");
+			}
 			Libro libro = repositorioLibro.obtenerPorIsbn(isbn);
-			System.out.println(nombreUsuario);
-			Prestamo prestamo = new Prestamo(new Date(),libro,new Date(),nombreUsuario);
+			Prestamo prestamo = new Prestamo(new Date(),libro,fechaEntrega,nombreUsuario);
 			repositorioPrestamo.agregar(prestamo);
 
 		}
@@ -48,6 +50,17 @@ public class Bibliotecario {
 	public boolean esPalindromo(String isbn) {
 		StringBuilder isbnBuilder = new StringBuilder(isbn);
 		return isbnBuilder.toString().equals(isbnBuilder.reverse().toString());
+	}
+	
+	public int sumarNumerosISBN(String isbn){
+		int suma = 0;
+		char [] caracteres= isbn.toCharArray();
+		for (char c : caracteres) {
+			if(Character.isDigit(c)){
+				suma += Integer.parseInt(String.valueOf(c));
+			}
+		}
+		return suma;
 	}
 
 }

@@ -84,6 +84,21 @@ public class BibliotecarioTest {
 		}
 	}
 
+	@Test
+	public void contarNumerosISBN(){
+		
+		Libro libro = new LibroTestDataBuilder().conIsbn("1221AS5678GTSY525").build();
+		RepositorioPrestamo repositorioPrestamo = mock(RepositorioPrestamo.class);
+		RepositorioLibro repositorioLibro = mock(RepositorioLibro.class);
+
+		when(repositorioPrestamo.obtenerLibroPrestadoPorIsbn(libro.getIsbn())).thenReturn(null);
+
+		Bibliotecario bibliotecario = new Bibliotecario(repositorioLibro, repositorioPrestamo);
+		int isbnNumero = bibliotecario.sumarNumerosISBN(libro.getIsbn());
+		Assert.assertEquals(44,isbnNumero);
+	}
+	
+	
 
 
 }
