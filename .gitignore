@@ -1,0 +1,8 @@
+/build/
+
+.sonar/
+.gradle
+/.classpath
+/.settings
+/bin
+*.project
